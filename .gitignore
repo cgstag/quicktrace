@@ -1,0 +1,14 @@
+# Binary
+#quicktrace
+
+# IntelliJ
+*.iml
+.idea
+
+# Go Mod
+go.sum
+go.mod
+
+# Test Files
+samples/*
+trace-comparator.jar
