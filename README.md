@@ -15,7 +15,11 @@ $ git@github.com:cgstag/quicktrace.git
 $ cd quicktrace
 $ go build
 $ go run quicktrace --input=stdin --output=stdout
+
+2013-10-23T10:12:37.634Z 2013-10-23T10:12:37.946Z rjopvy3w service8 null->qa5oegbm
+
 ```
+Setting stdin as input will wait for the next keyboard input.
 
 ## Test it
 
