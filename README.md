@@ -42,6 +42,8 @@ go test ./...
 
 ## Next Step
 
+* Orphan management : as of now there is one way for the program to recognize orphans : If the entire log or stdin has been parsed and traces were found without a root span, it is orphan
+    *     
 * Managing pending / orphans : In order to manage the traces without root span, one idea would be to add them in a memory queue with an expiration threshold. Two ideas come to mind :
     * The entry should batch-read a directory or be triggered through a pubsub topic
     * Redis as a queue looks like a good idea because of its builtin expiration

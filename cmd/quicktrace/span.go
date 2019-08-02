@@ -14,6 +14,8 @@ type Span struct {
 	Calls   []Span `json:"calls"`
 }
 
+var current string
+
 func matchSpan(root *Span, unsorted []*Span) (*Span, []*Span, error) {
 	if root == nil {
 		return root, unsorted, NewNoRootSpanError()
@@ -38,6 +40,8 @@ func (tr Tracer) pushSpan(strSpan string) {
 		tr.Malformed++
 		return
 	}
+	// Set timestamp of treatment as current
+	current = span.End
 	if _, ok := tr.TraceMap[span.Trace]; !ok {
 		// This trace is new
 		tr.TraceMap[span.Trace] = Trace{

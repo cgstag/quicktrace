@@ -77,7 +77,7 @@ func NewTracer(opt *cli.Options, ctx *cli.Context) *Tracer {
 
 func (tr Tracer) BuildTrace() (err error) {
 	bar := pb.StartNew(len(tr.TraceMap))
-	tr.PrintProgress("Parsing input... this could take a while")
+	tr.PrintProgress("Building Traces")
 	f := new(os.File)
 	if tr.Options.Output != "stdout" {
 		output, err := os.Create(tr.Options.Output)
@@ -104,7 +104,9 @@ func (tr Tracer) BuildTrace() (err error) {
 			}
 			trace.Root, trace.Unsorted, err = matchSpan(trace.Root, trace.Unsorted)
 			if err != nil && err.Error() == "NoRootSpan" {
-				fmt.Fprintf(os.Stderr, "Orphan line detected for Trace: %s \n", trace.Id)
+				if tr.Options.Stats {
+					fmt.Fprintf(os.Stderr, "Orphan line detected for Trace: %s \n", trace.Id)
+				}
 				tr.Orphans = append(tr.Orphans, &trace)
 			}
 			if err != nil {
