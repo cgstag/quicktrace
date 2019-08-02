@@ -40,10 +40,8 @@ go test ./...
 `--help` : Print use instructions
 
 
-## Next Step
+## Next Steps
 
-* Orphan management : as of now there is one way for the program to recognize orphans : If the entire log or stdin has been parsed and traces were found without a root span, it is orphan
-    *     
-* Managing pending / orphans : In order to manage the traces without root span, one idea would be to add them in a memory queue with an expiration threshold. Two ideas come to mind :
-    * The entry should batch-read a directory or be triggered through a pubsub topic
-    * Redis as a queue looks like a good idea because of its builtin expiration
+* Pending entries management
+   * One idea would be to store in memory the pending entries, and try every second or so to find their parents in a separate goroutine. 
+   * Upon trigger of that goroutine, it could compare the timestamp of that entry with the current timestamp (which is already stored in a global variable of the quicktrace package), and add make it an orphan in case of expiration. The expiration could be parametrically defined via command line flags
