@@ -1,10 +1,18 @@
 package quicktrace
 
 import (
-	"fmt"
-	"os"
 	"strings"
 )
+
+type Span struct {
+	Start   string `json:"start"`
+	End     string `json:"end"`
+	Trace   string `json:"-"`
+	Service string `json:"service"`
+	Span    string `json:"span"`
+	Caller  string `json:"-"`
+	Calls   []Span `json:"calls"`
+}
 
 func matchSpan(root *Span, unsorted []*Span) (*Span, []*Span, error) {
 	if root == nil {
@@ -21,51 +29,41 @@ func matchSpan(root *Span, unsorted []*Span) (*Span, []*Span, error) {
 	return root, unsorted, nil
 }
 
-func (tr *Trace) QuickTrace(ctx *Context) (*Trace, error) {
-	var err error
-	tr.Root, tr.Unsorted, err = matchSpan(tr.Root, tr.Unsorted)
-	if err != nil && err.Error() == "NoRootSpan" {
-		fmt.Fprintf(os.Stderr, "Orphan line detected for Trace: %s \n", tr.Id)
-		ctx.Orphans = append(ctx.Orphans, tr)
-		return nil, err
-	}
-	return tr, nil
-}
-
 /**
- * The challenge here is parse the log entry and assign it to the Hashmap
+* The challenge here is parse the log entry and assign it to the TraceMap
  */
-func (tr TraceMap) PushSpan(strSpan string) {
+func (tr Tracer) pushSpan(strSpan string) {
 	span := toSpan(strSpan)
 	if span.Span == "" {
+		tr.Malformed++
 		return
 	}
-	if _, ok := tr[span.Trace]; !ok {
+	if _, ok := tr.TraceMap[span.Trace]; !ok {
 		// This trace is new
-		tr[span.Trace] = Trace{
+		tr.TraceMap[span.Trace] = Trace{
 			Id: span.Trace,
 		}
-		var current = tr[span.Trace]
+		var current = tr.TraceMap[span.Trace]
 		if span.Caller == "null" {
 			// The span is root
 			current.Root = span
-			tr[span.Trace] = current
+			tr.TraceMap[span.Trace] = current
 		} else {
 			// Add to Unsorted list of that trace
-			current.Unsorted = append(tr[span.Trace].Unsorted, span)
-			tr[span.Trace] = current
+			current.Unsorted = append(tr.TraceMap[span.Trace].Unsorted, span)
+			tr.TraceMap[span.Trace] = current
 		}
 	} else {
-		// This trace is ongoing
-		var onGoingTrace = tr[span.Trace]
+		// This trace already exists
+		var onGoingTrace = tr.TraceMap[span.Trace]
 		if span.Caller == "null" {
 			// The span is root
 			onGoingTrace.Root = span
-			tr[span.Trace] = onGoingTrace
+			tr.TraceMap[span.Trace] = onGoingTrace
 		} else {
 			// Add to Unsorted list of that trace
-			onGoingTrace.Unsorted = append(tr[span.Trace].Unsorted, span)
-			tr[span.Trace] = onGoingTrace
+			onGoingTrace.Unsorted = append(tr.TraceMap[span.Trace].Unsorted, span)
+			tr.TraceMap[span.Trace] = onGoingTrace
 		}
 	}
 }
