@@ -19,7 +19,7 @@ var (
 )
 
 const (
-	defaultInput  = "stdin"
+	defaultInput  = "samples/micro-log.txt"
 	defaultOutput = "stdout"
 	defaultStats  = true
 )

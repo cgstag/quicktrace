@@ -75,10 +75,12 @@ func NewTracer(opt *cli.Options, ctx *cli.Context) *Tracer {
 	return t
 }
 
+// Build traces out of the unsorted TraceMap entries
 func (tr Tracer) BuildTrace() (err error) {
 	bar := pb.StartNew(len(tr.TraceMap))
 	tr.PrintProgress("Building Traces")
 	f := new(os.File)
+	w := new(bufio.Writer)
 	if tr.Options.Output != "stdout" {
 		output, err := os.Create(tr.Options.Output)
 		if err != nil {
@@ -88,9 +90,10 @@ func (tr Tracer) BuildTrace() (err error) {
 		f = output
 	} else {
 		f = os.Stdout
+		defer w.Flush()
 	}
 
-	w := bufio.NewWriter(f)
+	w = bufio.NewWriter(f)
 	var wg sync.WaitGroup
 	var mutex = &sync.Mutex{}
 
