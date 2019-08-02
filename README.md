@@ -20,6 +20,7 @@ $ go run quicktrace --input=stdin --output=stdout
 
 ```
 Setting stdin as input will wait for the next keyboard input.
+Typing an empty line will end the stdin scanner and start parsing the entries.
 
 ## Test it
 
